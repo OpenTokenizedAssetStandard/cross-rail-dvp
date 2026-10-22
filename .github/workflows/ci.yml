@@ -37,3 +37,19 @@ jobs:
           json.loads(pathlib.Path("schemas/reasons-v1.json").read_text())
           print("parses: schemas/reasons-v1.json")
           PY
+
+  conformance:
+    name: Conformance vectors
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r ../requirements.txt
+      - run: python -m otas_tools.cli validate-all
+      - run: python -m otas_tools.cli lint-reasons
+      - run: python -m otas_tools.cli run-vectors

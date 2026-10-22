@@ -1,0 +1,22 @@
+{
+  "suite": "otas-conformance",
+  "version": "1.0.0",
+  "note": "Rail-neutral vectors: the SAME fixture must produce the SAME reason code on every rail. This is the abstraction test.",
+  "vectors": [
+    {"id": "V01-plain-transfer-ok", "rails": ["evm-account", "sui-object"],
+     "setup": {"eligible": ["alice", "bob"], "balances": {"alice": 100}},
+     "op": {"from": "alice", "to": "bob", "amount": 40}, "expect": "OTAS_OK"},
+    {"id": "V02-ineligible-receiver", "rails": ["evm-account", "sui-object"],
+     "setup": {"eligible": ["alice"], "balances": {"alice": 100}},
+     "op": {"from": "alice", "to": "mallory", "amount": 10}, "expect": "INELIGIBLE_RECEIVER"},
+    {"id": "V03-sanctions-revocation", "rails": ["evm-account", "sui-object"],
+     "setup": {"eligible": ["alice"], "sanctioned": ["carol"], "balances": {"alice": 100}},
+     "op": {"from": "alice", "to": "carol", "amount": 10}, "expect": "SANCTIONS_HIT"},
+    {"id": "V04-insufficient-units", "rails": ["evm-account", "sui-object"],
+     "setup": {"eligible": ["alice", "bob"], "balances": {"alice": 5}},
+     "op": {"from": "alice", "to": "bob", "amount": 10}, "expect": "SUPPLY_RULE_VIOLATION"},
+    {"id": "V05-ineligible-sender", "rails": ["evm-account", "sui-object"],
+     "setup": {"eligible": ["bob"], "balances": {"alice": 100}},
+     "op": {"from": "alice", "to": "bob", "amount": 10}, "expect": "INELIGIBLE_SENDER"}
+  ]
+}

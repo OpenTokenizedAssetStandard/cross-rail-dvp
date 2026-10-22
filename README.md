@@ -10,6 +10,17 @@ OTAS is a lab under [LF Decentralized Trust (LFDT)](https://www.lfdecentralizedt
 
 > **Status: experimental.** Research and educational artifacts under the OTAS Lab charter. The schemas and reason codes are proposals for community review, not adopted specifications. The contracts are unaudited and target test networks only.
 
+## Quickstart
+
+Needs only Python:
+
+```bash
+pip install -r requirements.txt
+cd tools
+python -m otas_tools.cli validate-all     # schemas parse, reason registry lints clean
+python -m otas_tools.cli run-vectors      # same fixture -> same reason code on every rail
+```
+
 ## Schemas
 
 The artifacts in [`schemas/`](./schemas) are this repository's candidate for the standard's normative surface. Each one maps to a section of the [whitepaper (v0.2)](https://github.com/OpenTokenizedAssetStandard/whitepaper/blob/whitepaper-v0.2/whitepaper.md).
@@ -23,6 +34,20 @@ The artifacts in [`schemas/`](./schemas) are this repository's candidate for the
 | `core-descriptor.schema.json` | The asset metadata envelope, including the settlement-asset tier | §6.4, §7 |
 
 Where the draft leaves a question open, the schemas make a concrete choice and say so in their descriptions.
+
+## Tooling and conformance
+
+[`tools/otas_tools`](./tools/otas_tools) provides one small verifier per seam, in the spirit of [otas-probe](https://github.com/vishnugovind10/otas-probe):
+
+| Command | Checks |
+|---|---|
+| `validate-all` | Every schema parses; the reason registry passes its lint |
+| `lint-reasons` | Unique names and numbers, additivity, coarse wire codes |
+| `check-manifest FILE` | Manifest validity, native/observed provenance, anchors, exclusions |
+| `run-vectors` | [`conformance/vectors.json`](./conformance/vectors.json) against every simulated rail |
+| `reconcile FILE` | Any event log, simulated or live: schema validity, atomicity, declared finality |
+
+**Conformance-first.** The vectors, not any one implementation, define what conformant means: a rail is conformant when the same fixture produces the same reason code. Adding a ledger means writing one adapter and passing the same vectors.
 
 ## Contributing
 
