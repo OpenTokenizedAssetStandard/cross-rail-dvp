@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FOUNDRY_VERSION: v1.5.1
+  SUI_VERSION: 1.82.1
+
+jobs:
+  schemas:
+    name: Schemas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Meta-validate every JSON Schema
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          from jsonschema import Draft202012Validator
+          for p in sorted(pathlib.Path("schemas").glob("*.schema.json")):
+              Draft202012Validator.check_schema(json.loads(p.read_text()))
+              print("valid schema:", p)
+          json.loads(pathlib.Path("schemas/reasons-v1.json").read_text())
+          print("parses: schemas/reasons-v1.json")
+          PY

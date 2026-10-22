@@ -1,6 +1,6 @@
 # OTAS Cross-Rail DvP
 
-[![LFDT Lab](https://img.shields.io/badge/LF%20Decentralized%20Trust-Lab-blue)](https://www.lfdecentralizedtrust.org/)   [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
+[![LFDT Lab](https://img.shields.io/badge/LF%20Decentralized%20Trust-Lab-blue)](https://www.lfdecentralizedtrust.org/)  [![Status: experimental](https://img.shields.io/badge/status-experimental-orange)](#status)  [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)  [![CI](https://github.com/OpenTokenizedAssetStandard/cross-rail-dvp/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenTokenizedAssetStandard/cross-rail-dvp/actions/workflows/ci.yml)
 
 **OTAS Cross-Rail DvP** makes the [Open Tokenized Asset Standard whitepaper](https://github.com/OpenTokenizedAssetStandard/whitepaper) testable: machine-readable schemas for the seams the draft identifies, rail-neutral conformance vectors and verifier tooling, and runnable versions of the whitepaper's reference flows.
 
@@ -9,6 +9,20 @@ OTAS is a lab under [LF Decentralized Trust (LFDT)](https://www.lfdecentralizedt
 <a id="status"></a>
 
 > **Status: experimental.** Research and educational artifacts under the OTAS Lab charter. The schemas and reason codes are proposals for community review, not adopted specifications. The contracts are unaudited and target test networks only.
+
+## Schemas
+
+The artifacts in [`schemas/`](./schemas) are this repository's candidate for the standard's normative surface. Each one maps to a section of the [whitepaper (v0.2)](https://github.com/OpenTokenizedAssetStandard/whitepaper/blob/whitepaper-v0.2/whitepaper.md).
+
+| File | Defines | Whitepaper |
+|---|---|---|
+| `reasons-v1.json` | The reason-code registry: coarse, additive codes a `canTransfer` check returns | §6.3 |
+| `manifest.schema.json` | The capability manifest, including whether each behaviour is chain-observed or issuer-declared | §5.2, §5.4 |
+| `events.schema.json` | The canonical event envelope, with the finality model and moment declared per event | §5.2, §6.1 |
+| `settlement.schema.json` | The settlement instruction: `Proposed → Committed → Settled \| Aborted`, with per-leg finality | §6.1 |
+| `core-descriptor.schema.json` | The asset metadata envelope, including the settlement-asset tier | §6.4, §7 |
+
+Where the draft leaves a question open, the schemas make a concrete choice and say so in their descriptions.
 
 ## Contributing
 

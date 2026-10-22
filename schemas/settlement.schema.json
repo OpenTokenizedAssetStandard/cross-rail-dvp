@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://otas.dev/schemas/settlement/1.0.0",
+  "title": "OTAS Settlement Instruction",
+  "description": "A rail-neutral settlement instruction: the common construct by which two heterogeneous systems express and verify an instruction's state, while the atomicity mechanism beneath it (HTLC, escrow/notary, shared ledger) is deliberately NOT prescribed. Lifecycle: PROPOSED -> COMMITTED -> SETTLED | ABORTED. Once the coordinator holds both legs' states the instruction moves to COMMITTED: enqueued, will not be lost, and no longer revocable by a participant. That transition is the revocability boundary and a natural anchor for legal finality; SETTLED marks final settlement. Each leg declares its technical finality model and its legal-finality construct, because atomicity alone delivers neither.",
+  "type": "object",
+  "required": ["spec_version", "settlement_id", "legs", "mechanism", "state"],
+  "properties": {
+    "spec_version": {"const": "1.0.0"},
+    "settlement_id": {"type": "string"},
+    "kind": {"enum": ["DvP", "PvP", "DvD", "FoP"]},
+    "state": {"enum": ["PROPOSED", "COMMITTED", "SETTLED", "ABORTED"]},
+    "mechanism": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {"enum": ["htlc", "escrow-notary", "shared-ledger"]},
+        "hashlock": {"type": "string"},
+        "timeout_policy": {"type": "object", "description": "Per-leg timeouts; in an HTLC the asset-leg timeout must exceed the cash-leg timeout to avoid the free-option asymmetry"}
+      }
+    },
+    "netting": {
+      "type": "object",
+      "description": "Liquidity-saving mechanisms are describable, not impossible: a leg may reference a netting window or queue rather than a gross pre-funded amount.",
+      "properties": {"window_ref": {"type": "string"}, "mode": {"enum": ["gross", "net-window", "queued-conditional"]}}
+    },
+    "legs": {
+      "type": "array", "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["leg_id", "token_ref", "rail", "from", "to", "amount", "role", "finality"],
+        "properties": {
+          "leg_id": {"type": "string"},
+          "token_ref": {"type": "object"},
+          "rail": {"type": "string"},
+          "from": {"type": "string"}, "to": {"type": "string"},
+          "amount": {"type": "string"},
+          "role": {"enum": ["asset", "cash"]},
+          "settlement_asset_tier": {"enum": ["central-bank-money", "commercial-bank-deposit", "regulated-stablecoin", "fund-share", "other", "not-cash"]},
+          "finality": {
+            "type": "object",
+            "required": ["technical_model", "legal"],
+            "description": "Both the finality model and the finality moment are declared, rather than inferred from atomicity.",
+            "properties": {
+              "technical_model": {"enum": ["deterministic", "probabilistic", "instant"]},
+              "confirmation_depth": {"type": "integer", "description": "For a probabilistic rail: the depth at which this leg is treated as settled"},
+              "legal": {
+                "type": "object",
+                "required": ["regime_ref"],
+                "properties": {
+                  "regime_ref": {"type": "string", "description": "The governing rulebook or jurisdictional construct"},
+                  "rulebook_hash": {"type": "string"},
+                  "irrevocability_moment": {"enum": ["Committed", "Settled"]},
+                  "final_settlement_moment": {"enum": ["Committed", "Settled"]},
+                  "abort_after_committed": {"type": "boolean", "description": "Whether this rulebook permits Abort after Committed, e.g. on exceptional technical failure"}
+                }
+              }
+            }
+          },
+          "lock_ref": {"type": "string", "description": "Rail-native reference to the escrow/lock once the leg's state is held (e.g. an EVM lock id, a Sui escrow account)"}
+        }
+      }
+    }
+  }
+}

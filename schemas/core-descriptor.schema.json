@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://otas.dev/schemas/core-descriptor/1.0.0",
+  "title": "OTAS Asset Core Descriptor",
+  "description": "The COMMON envelope: enough for a third party to recognize two tokenizations as the same underlying instrument. Contents beyond this are semi-common (lifecycle/terms) or issuer-defined (typed extensions). Aligned to existing financial vocabularies (ISO 20022 / FIX / FpML) rather than inventing parallel ones.",
+  "type": "object",
+  "required": ["spec_version", "asset_class", "issuer_did", "jurisdiction", "denomination", "manifest_ref"],
+  "properties": {
+    "spec_version": {"const": "1.0.0"},
+    "asset_class": {"enum": ["sovereign-bond", "corporate-bond", "fund-share", "deposit", "e-money", "equity", "repo", "other"]},
+    "issuer_did": {"type": "string", "pattern": "^did:"},
+    "instrument_ids": {"type": "object", "properties": {"isin": {"type": "string"}, "cusip": {"type": "string"}, "figi": {"type": "string"}}},
+    "jurisdiction": {"type": "string", "description": "ISO 3166"},
+    "denomination": {"type": "object", "required": ["currency", "decimals"], "properties": {"currency": {"type": "string"}, "decimals": {"type": "integer"}}},
+    "legal_wrapper_ref": {"type": "string"},
+    "settlement_asset_tier": {"enum": ["central-bank-money", "commercial-bank-deposit", "regulated-stablecoin", "fund-share", "other", "not-cash"], "description": "Credit tier is explicit core metadata, not buried in documentation"},
+    "manifest_ref": {"type": "string", "description": "Hash of the capability manifest"},
+    "terms": {"type": "object", "description": "Semi-common layer: coupon schedule / day-count / maturity (debt); NAV source / distribution (funds); device+oracle (IoT-linked)"},
+    "extensions": {"type": "object", "description": "Issuer-defined, typed; must not break common parsers"}
+  }
+}

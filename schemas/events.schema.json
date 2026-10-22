@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://otas.dev/schemas/events/1.0.0",
+  "title": "OTAS Canonical Event Envelope",
+  "description": "Rail-neutral event schema so any indexer reconciles uniformly across rails. The settlement lifecycle is SettlementProposed -> Committed -> Settled | Aborted (whitepaper 6.1). Committed means the coordinator holds both legs' states: the instruction is enqueued, will not be lost, and can no longer be revoked by a participant. The revocability boundary sits at the transition into Committed, which is a natural place for a rulebook to anchor legal finality; final settlement is marked by Settled. Whether an instruction may still Abort after Committed is left to the rulebook, so it is declared rather than assumed.",
+  "type": "object",
+  "required": ["spec_version", "event_type", "event_id", "token_ref", "rail", "ts", "payload"],
+  "properties": {
+    "spec_version": {"const": "1.0.0"},
+    "event_type": {"enum": [
+      "Issued", "Transferred", "Burned", "Frozen", "Unfrozen", "ForcedTransfer",
+      "Paused", "Unpaused", "EligibilityChecked",
+      "SettlementProposed", "Committed", "Settled", "Aborted",
+      "ServicingEvent", "MetadataAnchored"
+    ]},
+    "event_id": {"type": "string"},
+    "token_ref": {"type": "object"},
+    "rail": {"type": "string"},
+    "tx_ref": {"type": "string", "description": "Rail-native transaction reference (tx hash / digest)"},
+    "ts": {"type": "string", "format": "date-time"},
+    "settlement_id": {"type": "string", "description": "Present on all settlement lifecycle events; pairs legs across rails"},
+    "finality": {
+      "type": "object",
+      "description": "Technical finality is not uniform across rails, so the MODEL is declared rather than assumed. Where legal finality applies, the MOMENT the governing rulebook anchors is declared alongside it. OTAS provides the construct to express which moment governs under which model; the legal determination remains the operator's and the jurisdiction's responsibility.",
+      "properties": {
+        "technical_model": {
+          "enum": ["deterministic", "probabilistic", "instant"],
+          "description": "deterministic = single-block finality; probabilistic = residual reorganization risk decaying with depth"
+        },
+        "confirmation_depth": {"type": "integer", "description": "Optional: depth at which the emitting party treats a probabilistic rail as settled"},
+        "legal": {
+          "type": "object",
+          "description": "Declared by the operator under the governing jurisdiction and its insolvency law; often established by a reasoned legal opinion and rarely harmonized across borders.",
+          "properties": {
+            "regime_ref": {"type": "string", "description": "Reference to the rulebook or jurisdictional construct defining finality"},
+            "rulebook_hash": {"type": "string"},
+            "irrevocability_moment": {"enum": ["Committed", "Settled"], "description": "Lifecycle state after which an instruction may no longer be revoked by a participant"},
+            "final_settlement_moment": {"enum": ["Committed", "Settled"], "description": "Lifecycle state at which settlement is final under the governing framework"},
+            "abort_after_committed": {"type": "boolean", "description": "Whether the rulebook permits Abort after Committed (e.g. on exceptional technical failure). Declared, never assumed by this spec."}
+          }
+        }
+      }
+    },
+    "payload": {"type": "object", "description": "Event-type-specific body. EligibilityChecked carries {result, reason_code} with reason_code from the otas-reasons registry. Settlement lifecycle events carry {leg_id, role, settlement_asset_tier, mechanism}. ServicingEvent carries {type, terms_ref}. MetadataAnchored carries {hash}."}
+  }
+}

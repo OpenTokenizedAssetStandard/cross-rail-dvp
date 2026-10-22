@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://otas.dev/schemas/manifest/1.0.0",
+  "title": "OTAS Capability Manifest",
+  "description": "Machine-readable declaration of a token's base type, behaviors, and the policy/registry and metadata anchor it points to, so a counterparty's system can determine compatibility before transacting (whitepaper 5.2). Each behavior also records WHERE ITS DESCRIPTION CAME FROM, per the native/observed spectrum of 5.4: a natively mapped behavior is declared by the issuer against OTAS conventions; an observed one is inferred by tooling from on-chain facts and is only as reliable as what the chain exposes. How much corroboration an observed description needs before a counterparty relies on it is an open question in the draft, so this schema records the provenance and leaves the sufficiency judgment to the consumer.",
+  "type": "object",
+  "required": ["spec_version", "token_ref", "rail", "base_type", "mapping", "behaviors"],
+  "properties": {
+    "spec_version": {"const": "1.0.0"},
+    "token_ref": {
+      "type": "object",
+      "required": ["chain_namespace", "reference", "asset_id"],
+      "properties": {
+        "chain_namespace": {"type": "string", "description": "CAIP-2 style namespace, e.g. eip155, sui"},
+        "reference": {"type": "string", "description": "Chain reference, e.g. 1, mainnet"},
+        "asset_id": {"type": "string", "description": "Contract address (EVM) / coin type (Sui) / mint (Solana) / token id (UTXO)"}
+      }
+    },
+    "rail": {"enum": ["evm-account", "sui-object", "solana-account", "utxo-dag"]},
+    "base_type": {"enum": ["FungibleBase", "UniqueBase", "FractionalUniqueBase"]},
+    "mapping": {
+      "enum": ["native", "observed", "mixed"],
+      "description": "Where this manifest as a whole came from (5.4). native = issued to conform, described by the issuer against OTAS conventions; observed = inferred by tooling reading on-chain facts; mixed = some of each, as most real tokens will be."
+    },
+    "anchor": {
+      "type": "object",
+      "description": "An observed description is valid only as of the state it was read from.",
+      "properties": {
+        "block": {"type": "string"},
+        "read_at": {"type": "string", "format": "date-time"},
+        "code_hash": {"type": "string", "description": "Guards against proxy upgrades invalidating the description"}
+      }
+    },
+    "behaviors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "source", "binding"],
+        "properties": {
+          "name": {"enum": ["Mintable","Burnable","FixedSupply","BurnOnly","Pausable","Freezable","ForceTransferable","Recoverable","Restricted","AtomicLeg","IncomeBearing","Redeemable","Maturing","CorporateActionable","ConfidentialAmount"]},
+          "source": {
+            "enum": ["issuer-declared", "chain-observed"],
+            "description": "issuer-declared = the description originates with the issuer; chain-observed = tooling resolved it from on-chain state (interfaces implemented, registries and policies referenced, extensions enabled, capability objects held)."
+          },
+          "binding": {"type": "string", "description": "Rail-native mechanism, e.g. 'ERC-3643 canTransfer', 'Sui PAS Policy<T> + approval witness', 'Sui PAS clawback_funds', 'Token-2022 transfer hook'"},
+          "corroboration_ref": {"type": "string", "description": "Optional URI/hash supporting an issuer-declared behavior that on-chain state cannot confirm. How much corroboration is enough is left open by the draft."}
+        }
+      }
+    },
+    "not_confirmable": {
+      "type": "array",
+      "description": "Behaviors the issuer declares or the token may have that could NOT be confirmed from on-chain state alone. Naming them is the point: absent from this list is not the same as absent from the token, and off-chain enforcement can exist with nothing observable on-chain.",
+      "items": {"type": "string"}
+    },
+    "exclusions": {
+      "type": "array",
+      "description": "Behavior pairs mutually exclusive on THIS rail (canonical example: Solana confidential transfers x transfer hooks, since a hook that reads the amount is incompatible with an encrypted amount).",
+      "items": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 2}
+    },
+    "policy_refs": {"type": "array", "items": {"type": "string"}, "description": "e.g. the Sui PAS Policy<T> whose required approvals are readable before a request is submitted, or an ERC-3643 compliance/registry address"},
+    "settlement_asset_tier": {"enum": ["central-bank-money", "commercial-bank-deposit", "regulated-stablecoin", "fund-share", "other", "not-cash"]},
+    "metadata_anchor": {"type": "string", "description": "Content hash of the canonical off-chain core descriptor"}
+  }
+}

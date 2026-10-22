@@ -1,0 +1,29 @@
+{
+  "registry": "otas-reasons",
+  "version": "1.0.0",
+  "status": "Proposal for community discussion. The whitepaper (6.3) commits to standard, machine-readable reason codes and names six of them; this registry is a candidate concrete list plus a governance model for it. The policy notes below are proposals, not settled positions.",
+  "policy": {
+    "additivity": "PROPOSED: codes are deprecated, never removed or renumbered, so that a code recorded today still resolves when read back later.",
+    "wire_granularity": "PROPOSED: the code returned at check time stays coarse, since detailed codes can leak rule structure and, in sanctions cases, disclosure may itself be restricted. UNSPECIFIED_DENY exists for cases where even a category is too revealing.",
+    "open_questions": [
+      "Who governs additions to this registry?",
+      "Is a coarse wire code plus a separate detailed path the right split, and what carries the detailed path?",
+      "Must a code recorded in a later compliance record be the identical token to the one returned at check time?"
+    ]
+  },
+  "codes": [
+    {"code": "OTAS_OK",               "num": 0,  "category": "allow",      "description": "Transfer permitted."},
+    {"code": "INELIGIBLE_SENDER",     "num": 10, "category": "identity",   "description": "Sender fails eligibility verification."},
+    {"code": "INELIGIBLE_RECEIVER",   "num": 11, "category": "identity",   "description": "Receiver fails eligibility verification.", "whitepaper_ref": "6.3"},
+    {"code": "JURISDICTION_BLOCKED",  "num": 20, "category": "compliance", "description": "Transfer blocked by jurisdiction rule.", "whitepaper_ref": "6.3"},
+    {"code": "HOLDER_CAP_EXCEEDED",   "num": 21, "category": "compliance", "description": "Offering-level holder cap would be exceeded.", "whitepaper_ref": "6.3"},
+    {"code": "LOCKUP_ACTIVE",         "num": 22, "category": "compliance", "description": "Position subject to active lockup.", "whitepaper_ref": "6.3"},
+    {"code": "SANCTIONS_HIT",         "num": 23, "category": "compliance", "description": "Sanctions-related denial, stated coarsely.", "whitepaper_ref": "6.3", "note": "Implementations MAY return UNSPECIFIED_DENY instead where disclosing a sanctions nexus is itself restricted."},
+    {"code": "TRAVEL_RULE_PENDING",   "num": 24, "category": "compliance", "description": "Awaiting the off-chain VASP-to-VASP Travel Rule exchange.", "whitepaper_ref": "6.3"},
+    {"code": "PAUSED",                "num": 30, "category": "control",    "description": "Token globally paused."},
+    {"code": "FROZEN_ACCOUNT",        "num": 31, "category": "control",    "description": "Sender or receiver account frozen or deny-listed."},
+    {"code": "SUPPLY_RULE_VIOLATION", "num": 40, "category": "supply",     "description": "Mint/burn/transfer violates the declared supply model, or insufficient units."},
+    {"code": "SETTLEMENT_LEG_LOCKED", "num": 50, "category": "settlement", "description": "Units are held as a leg of a Committed settlement instruction."},
+    {"code": "UNSPECIFIED_DENY",      "num": 90, "category": "generic",    "description": "Denied, with no further detail at check time."}
+  ]
+}
