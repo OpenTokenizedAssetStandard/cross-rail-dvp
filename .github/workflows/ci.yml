@@ -67,3 +67,17 @@ jobs:
       - name: Reconcile the demo's event log
         working-directory: tools
         run: python -m otas_tools.cli reconcile ../demo/event_log.json
+
+  evm:
+    name: EVM contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: ${{ env.FOUNDRY_VERSION }}
+      - name: Forge tests
+        working-directory: live/evm
+        run: forge test -vv

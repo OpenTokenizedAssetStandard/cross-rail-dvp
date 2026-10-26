@@ -1,0 +1,4 @@
+[submodule "live/evm/lib/forge-std"]
+	path = live/evm/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+	ignore = untracked
