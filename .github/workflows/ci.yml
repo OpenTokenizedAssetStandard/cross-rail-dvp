@@ -53,3 +53,17 @@ jobs:
       - run: python -m otas_tools.cli validate-all
       - run: python -m otas_tools.cli lint-reasons
       - run: python -m otas_tools.cli run-vectors
+
+  demo:
+    name: Simulated DvP demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python demo/run_demo.py
+      - name: Reconcile the demo's event log
+        working-directory: tools
+        run: python -m otas_tools.cli reconcile ../demo/event_log.json

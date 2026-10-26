@@ -12,13 +12,14 @@ OTAS is a lab under [LF Decentralized Trust (LFDT)](https://www.lfdecentralizedt
 
 ## Quickstart
 
-Needs only Python:
+A simulated run takes about a minute and needs only Python:
 
 ```bash
 pip install -r requirements.txt
 cd tools
 python -m otas_tools.cli validate-all     # schemas parse, reason registry lints clean
 python -m otas_tools.cli run-vectors      # same fixture -> same reason code on every rail
+python ../demo/run_demo.py                # Flow A: settle, sanctions denial, abort
 ```
 
 ## Schemas
@@ -48,6 +49,10 @@ Where the draft leaves a question open, the schemas make a concrete choice and s
 | `reconcile FILE` | Any event log, simulated or live: schema validity, atomicity, declared finality |
 
 **Conformance-first.** The vectors, not any one implementation, define what conformant means: a rail is conformant when the same fixture produces the same reason code. Adding a ledger means writing one adapter and passing the same vectors.
+
+## Simulated demo
+
+[`demo/run_demo.py`](./demo/run_demo.py) runs whitepaper Flow A between a simulated account/balance rail (Ethereum, with compliance in an ERC-3643-style registry) and a simulated object rail (Sui, with compliance in a PAS `Policy<T>` resolved by approval witnesses). It follows the flow's own numbering — A.1 modeling through A.6 settled — then a sanctions revocation (B) and an abort (C), and reconciles both rails' canonical events with one indexer.
 
 ## Contributing
 
