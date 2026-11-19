@@ -10,8 +10,9 @@ One adapter interface, two genuinely different accounting models underneath:
                request is a hot potato that must resolve in the same
                transaction or the transaction aborts.
 
-These are the simulated counterparts of the contracts in live/ (live/evm and
-live/sui/otas_live), which enforce the same reason codes on real chains.
+EVMRail is the simulated counterpart of the Solidity contracts in live/evm,
+which enforce the same reason codes. SuiRail is simulation only for now:
+there is no Sui Move package in this repository yet.
 Illustrative research prototypes per the OTAS Lab charter, not products.
 
 Note on PAS and OTAS: PAS deliberately does not decide policy. It standardizes
