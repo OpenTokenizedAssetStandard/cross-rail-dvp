@@ -56,8 +56,8 @@ Where the draft leaves a question open, the schemas make a concrete choice and s
 
 ## Contributing
 
-Contributions are welcome — new rails, conformance vectors, schema proposals, reviews of the contracts, and runs on testnet. See the [contribution guidelines](./CONTRIBUTING.md) and the [Code of Conduct](./CODE_OF_CONDUCT.md). All commits must be signed off under the Developer Certificate of Origin (DCO). Questions about the standard itself belong in the [whitepaper Discussions](https://github.com/OpenTokenizedAssetStandard/whitepaper/discussions).
+Contributions are welcome — new rails, conformance vectors, schema proposals, and reviews of the contracts. See the [contribution guidelines](./CONTRIBUTING.md) and the [Code of Conduct](./CODE_OF_CONDUCT.md). All commits must be signed off under the Developer Certificate of Origin (DCO). Questions about the standard itself belong in the [whitepaper Discussions](https://github.com/OpenTokenizedAssetStandard/whitepaper/discussions).
 
 ## License
 
-Licensed under [Apache-2.0](./LICENSE). Referenced third-party code keeps its own terms: [Mysten Labs' PAS](https://github.com/MystenLabs/pas) and [forge-std](https://github.com/foundry-rs/forge-std) are git submodules, not copies.
+Licensed under [Apache-2.0](./LICENSE). Referenced third-party code keeps its own terms: [forge-std](https://github.com/foundry-rs/forge-std) is a git submodule, not a copy.
