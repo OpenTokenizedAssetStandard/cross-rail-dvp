@@ -1,6 +1,6 @@
 # Contributing to the OTAS Cross-Rail DvP
 
-Thanks for your interest in **OTAS Cross-Rail DvP**, part of the **Open Tokenized Asset Standard (OTAS)**. This repository makes the [OTAS whitepaper](https://github.com/OpenTokenizedAssetStandard/whitepaper) testable: machine-readable schemas for each seam, rail-neutral conformance vectors, verifier tooling, and whitepaper Flow A : cross-rail delivery-versus-payment, running both as a simulation and as real transactions on public test networks. It is developed in the open under the **OTAS Lab at LF Decentralized Trust (LFDT)**.
+Thanks for your interest in **OTAS Cross-Rail DvP**, part of the **Open Tokenized Asset Standard (OTAS)**. This repository makes the [OTAS whitepaper](https://github.com/OpenTokenizedAssetStandard/whitepaper) testable: machine-readable schemas for each seam, rail-neutral conformance vectors, verifier tooling, and whitepaper Flow A: cross-rail delivery-versus-payment, run as a simulation. The EVM leg also has Solidity contracts with Foundry tests; the Sui leg is simulated only for now. It is developed in the open under the **OTAS Lab at LF Decentralized Trust (LFDT)**.
 
 Everything here is a proposal for community review. The schemas and reason codes are candidates for the standard, not adopted specifications.
 
@@ -23,7 +23,7 @@ This project follows a [Code of Conduct](./CODE_OF_CONDUCT.md) based on the LF D
 - **Add a rail.** A simulated adapter plus passing conformance vectors for Solana Token-2022, Hyperledger Fabric / Panurus, Besu, or Corda is the most valuable contribution right now. The UTXO model is the most likely to break our assumptions, which is exactly why we want it.
 - **Add conformance vectors.** Every reason code and behaviour should have a rail-neutral vector.
 - **Propose schema or reason-code changes,** with the motivation and the vectors that go with them.
-- **Run the live demo on testnet** and report what you see, with explorer links.
+- **Port the contracts to Sui Move.** The Sui leg is simulated only today; a Move package with tests would let both legs run on real chains.
 - **Review the contracts.** They are unaudited research code; careful eyes are welcome.
 - **Improve docs, scripts and CI.**
 
@@ -38,7 +38,7 @@ When you open an issue you'll be offered templates: **🐛 Bug report**, **📐 
 
 ## Development setup
 
-Clone with submodules — the Sui package depends on [Mysten Labs' PAS](https://github.com/MystenLabs/pas) and the EVM tests on [forge-std](https://github.com/foundry-rs/forge-std), both pinned as submodules:
+Clone with submodules — the EVM tests depend on [forge-std](https://github.com/foundry-rs/forge-std), pinned as a submodule:
 
 ```bash
 git clone --recurse-submodules https://github.com/<your-username>/cross-rail-dvp.git
@@ -50,8 +50,6 @@ What you need depends on what you touch:
 |---|---|---|
 | Schemas, conformance, simulated demo | `schemas/`, `conformance/`, `tools/`, `demo/` | Python 3.10+, `pip install -r requirements.txt` |
 | EVM contracts | `live/evm/` | [Foundry](https://book.getfoundry.sh/) |
-| Sui Move package | `live/sui/otas_live/` | Sui CLI **1.82.x** (match testnet) |
-| Live runner | `live/runner/` | Node.js 20+ |
 
 ### Running the checks (the same ones CI runs)
 
@@ -66,15 +64,6 @@ python -m otas_tools.cli reconcile ../demo/event_log.json
 
 # EVM contracts
 cd live/evm && forge test
-
-# Sui Move package
-cd live/sui/otas_live && sui move test --build-env testnet
-
-# live runner
-cd live/runner && npm ci && npm run typecheck
-
-# contracts changed? rebuild the shipped artifacts and commit them
-./live/scripts/build-artifacts.sh
 ```
 
 ---
@@ -83,9 +72,9 @@ cd live/runner && npm ci && npm run typecheck
 
 - **Reason codes are additive.** Codes in `schemas/reasons-v1.json` are deprecated, never removed or renumbered, so a code recorded today still resolves when read back later.
 - **Schema changes come with vectors.** A new behaviour, field or code arrives with the conformance vectors that exercise it.
-- **Contract changes come with tests and rebuilt artifacts.** The runner deploys the precompiled files in `live/runner/artifacts/`. CI rebuilds them from source and fails if they differ, so run `live/scripts/build-artifacts.sh` and commit the result.
+- **Contract changes come with tests.** Changes under `live/evm/` come with Forge tests that pass in CI.
 - **Keep both rails in step.** A reason code enforced on one rail should mean the same thing on the other, and the conformance vectors should prove it.
-- **Never commit keys.** The runner writes keys to `live/runner/.keys/`, which is git-ignored. Test networks only.
+- **Never commit keys.** Test networks only.
 
 ---
 
@@ -179,7 +168,7 @@ The sign-off name and email must match your commit author identity, and the emai
 
 Code in this repository is licensed under **[Apache-2.0](./LICENSE)**. By contributing, you agree your contributions are licensed under the same terms; you retain copyright. The Lab charter intends specification material for the Community Specification License 1.0 — how that applies to `schemas/` is an open question tracked in the issues.
 
-Referenced third-party code keeps its own terms: [Mysten Labs' PAS](https://github.com/MystenLabs/pas) and [forge-std](https://github.com/foundry-rs/forge-std) are git submodules, not copies.
+Referenced third-party code keeps its own terms: [forge-std](https://github.com/foundry-rs/forge-std) is a git submodule, not a copy.
 
 ---
 

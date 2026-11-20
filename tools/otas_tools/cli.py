@@ -156,8 +156,8 @@ def main():
         probs = lint_reasons()
         print("\n".join(probs) if probs else "OK")
     elif cmd == "reconcile":
-        # Reconcile any event log in the {rail: [events]} shape -- including the
-        # live testnet log written by live/runner.
+        # Reconcile any event log in the {rail: [events]} shape, such as the
+        # one the simulated demo writes.
         report = reconcile(_load(sys.argv[2]))
         print(f"  events: {report['total_events']}   schema violations: {report['schema_errors']}")
         for sid, st in report["settlements"].items():
